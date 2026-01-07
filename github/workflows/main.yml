@@ -1,0 +1,32 @@
+name: Daily Copper Price Bot
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 10 * * *' 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run crawler
+        run: python crawler.py
+
+      - name: Commit and push if changed
+        run: |
+          git config --global user.email "bot@github.com"
+          git config --global user.name "PriceBot"
+          git add data.json
+          git commit -m "Update price data" || exit 0
+          git push
